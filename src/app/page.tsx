@@ -25,7 +25,7 @@ export default function Home() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+    <div className="min-h-screen bg-linear-to-b from-background to-muted/20">
       <Navigation />
       
       <main className="container mx-auto px-4 py-12">
@@ -34,7 +34,7 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-12 text-center"
         >
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
+          <h1 className="text-5xl font-bold mb-4 bg-linear-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
             Master Algorithms Visually
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -47,6 +47,7 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="mb-8 flex flex-col md:flex-row gap-4"
+          suppressHydrationWarning
         >
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -55,6 +56,7 @@ export default function Home() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
+              suppressHydrationWarning
             />
           </div>
 

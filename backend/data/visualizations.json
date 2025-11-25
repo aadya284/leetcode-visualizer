@@ -1,0 +1,9 @@
+{
+  "two-sum": [
+    { "action": "read", "index": 0, "value": 2 },
+    { "action": "insert_hash", "key": 2, "index": 0 },
+    { "action": "read", "index": 1, "value": 7 },
+    { "action": "insert_hash", "key": 7, "index": 1 },
+    { "action": "found_pair", "indices": [0,1] }
+  ]
+}

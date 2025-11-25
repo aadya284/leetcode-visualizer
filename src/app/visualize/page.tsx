@@ -613,9 +613,17 @@ export default function VisualizePage() {
 function VisualizationRenderer({ problemId, vizState }: { problemId: ProblemId; vizState: VisualizationState }) {
   if (problemId === "1") {
     // Two Sum visualization
+    if (!vizState.elements || vizState.elements.length === 0) {
+      return (
+        <div className="w-full flex items-center justify-center h-full">
+          <p className="text-muted-foreground">Loading visualization...</p>
+        </div>
+      );
+    }
+
     return (
       <div className="w-full flex flex-col items-center gap-8">
-        <div className="flex gap-3 items-end">
+        <div className="flex gap-3 items-end flex-wrap justify-center">
           {vizState.elements.map((item, idx) => {
             const colors = {
               default: "bg-primary/60 border-primary",
@@ -642,23 +650,32 @@ function VisualizationRenderer({ problemId, vizState }: { problemId: ProblemId; 
 
   if (problemId === "2" || problemId === "5") {
     // Linked List visualization
+    if (!vizState.elements || vizState.elements.length === 0) {
+      return (
+        <div className="w-full flex items-center justify-center h-full">
+          <p className="text-muted-foreground">Loading visualization...</p>
+        </div>
+      );
+    }
+
     return (
       <div className="w-full flex flex-col gap-8">
         {vizState.elements.map((listData: any, listIdx) => (
           <div key={listIdx} className="flex flex-col gap-3">
             <div className="text-sm font-medium text-muted-foreground">{listData.label}</div>
-            <div className="flex items-center gap-2">
-              {listData.list.map((val: number, idx: number) => (
-                <div key={idx} className="flex items-center gap-2">
-                  <div className={`w-14 h-14 ${listData.type === 'result' ? 'bg-green-500' : 'bg-primary'} rounded-lg flex items-center justify-center text-white font-semibold border-2 ${listData.pointer === idx ? 'ring-4 ring-blue-400' : ''}`}>
-                    {val}
+            <div className="flex items-center gap-2 flex-wrap">
+              {listData.list && listData.list.length > 0 ? (
+                listData.list.map((val: number, idx: number) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <div className={`w-14 h-14 ${listData.type === 'result' ? 'bg-green-500' : 'bg-primary'} rounded-lg flex items-center justify-center text-white font-semibold border-2 ${listData.pointer === idx ? 'ring-4 ring-blue-400' : ''}`}>
+                      {val}
+                    </div>
+                    {idx < listData.list.length - 1 && (
+                      <div className="text-muted-foreground text-lg font-bold">→</div>
+                    )}
                   </div>
-                  {idx < listData.list.length - 1 && (
-                    <div className="text-muted-foreground">→</div>
-                  )}
-                </div>
-              ))}
-              {listData.list.length === 0 && (
+                ))
+              ) : (
                 <div className="text-muted-foreground italic">empty</div>
               )}
             </div>
@@ -670,9 +687,17 @@ function VisualizationRenderer({ problemId, vizState }: { problemId: ProblemId; 
 
   if (problemId === "3") {
     // Longest Substring visualization
+    if (!vizState.elements || vizState.elements.length === 0) {
+      return (
+        <div className="w-full flex items-center justify-center h-full">
+          <p className="text-muted-foreground">Loading visualization...</p>
+        </div>
+      );
+    }
+
     return (
       <div className="w-full flex justify-center">
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap justify-center">
           {vizState.elements.map((item, idx) => {
             const colors = {
               default: "bg-muted text-foreground",
@@ -695,9 +720,17 @@ function VisualizationRenderer({ problemId, vizState }: { problemId: ProblemId; 
 
   if (problemId === "4") {
     // Binary Search visualization
+    if (!vizState.elements || vizState.elements.length === 0) {
+      return (
+        <div className="w-full flex items-center justify-center h-full">
+          <p className="text-muted-foreground">Loading visualization...</p>
+        </div>
+      );
+    }
+
     return (
       <div className="w-full flex justify-center">
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-wrap justify-center">
           {vizState.elements.map((item, idx) => {
             const colors = {
               default: "bg-muted border-border",
@@ -721,6 +754,14 @@ function VisualizationRenderer({ problemId, vizState }: { problemId: ProblemId; 
 
   if (problemId === "6") {
     // Valid Parentheses visualization
+    if (!vizState.elements || vizState.elements.length < 2) {
+      return (
+        <div className="w-full flex items-center justify-center h-full">
+          <p className="text-muted-foreground">Loading visualization...</p>
+        </div>
+      );
+    }
+
     const [charsData, stackData] = vizState.elements;
     return (
       <div className="w-full flex flex-col items-center gap-12">

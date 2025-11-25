@@ -241,7 +241,46 @@ public:
 
 def mergeTwoLists(list1, list2):
     # Write your code here
-    pass`,
+    pass
+
+# Helper function to create linked list from array
+def createLinkedList(arr):
+    if not arr:
+        return None
+    head = ListNode(arr[0])
+    current = head
+    for val in arr[1:]:
+        current.next = ListNode(val)
+        current = current.next
+    return head
+
+# Helper function to print linked list
+def printLinkedList(node):
+    result = []
+    while node:
+        result.append(str(node.val))
+        node = node.next
+    return "[" + ", ".join(result) + "]"
+
+# Test your solution
+if __name__ == "__main__":
+    # Test case 1
+    list1 = createLinkedList([1, 2, 4])
+    list2 = createLinkedList([1, 3, 4])
+    result = mergeTwoLists(list1, list2)
+    print(f"Test 1: {printLinkedList(result)}")  # Expected: [1, 1, 2, 3, 4, 4]
+    
+    # Test case 2
+    list1 = createLinkedList([])
+    list2 = createLinkedList([])
+    result = mergeTwoLists(list1, list2)
+    print(f"Test 2: {printLinkedList(result)}")  # Expected: []
+    
+    # Test case 3
+    list1 = createLinkedList([])
+    list2 = createLinkedList([0])
+    result = mergeTwoLists(list1, list2)
+    print(f"Test 3: {printLinkedList(result)}")  # Expected: [0]`,
       c: `struct ListNode* mergeTwoLists(struct ListNode* list1, struct ListNode* list2) {
     // Write your code here
 }`,
