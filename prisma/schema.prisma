@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Problem {
+  id                String          @id @default(uuid())
+  platform          String          // e.g. "Codeforces", "LeetCode"
+  platformProblemId String          // e.g. "4A", "1"
+  title             String
+  slug              String          @unique
+  description       String?         @db.Text
+  difficulty        String          // "Easy", "Medium", "Hard", "Unknown"
+  acceptanceRate    Float?          @default(0)
+  sourceUrl         String
+  visualizationType String          @default("unknown") // "array", "binary-search", etc.
+  constraints       Json?           @default("[]")
+  examples          Json?           @default("[]")
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  topics            ProblemTopic[]
+  visualizations    Visualization[]
+
+  @@unique([platform, platformProblemId])
+  @@index([platform])
+  @@index([difficulty])
+  @@index([visualizationType])
+  @@index([slug])
+}
+
+model Topic {
+  id        String         @id @default(uuid())
+  name      String         @unique
+  problems  ProblemTopic[]
+
+  @@index([name])
+}
+
+model ProblemTopic {
+  problemId String
+  topicId   String
+
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  topic     Topic   @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@id([problemId, topicId])
+  @@index([problemId])
+  @@index([topicId])
+}
+
+model Visualization {
+  id            String   @id @default(uuid())
+  problemId     String
+  type          String   // e.g. "binary-search", "array", "tree"
+  configuration Json?    // configuration details for the visualizer
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  problem       Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@index([problemId])
+  @@index([type])
+}
