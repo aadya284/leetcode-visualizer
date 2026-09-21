@@ -13,8 +13,15 @@ import {
   Calendar, 
   Github, 
   Edit3, 
+  BarChart3, 
+  Clock, 
+  Layers, 
   ArrowRight, 
-  Check
+  Check, 
+  Code2, 
+  FileText, 
+  GraduationCap, 
+  UserCheck
 } from "lucide-react";
 import Link from "next/link";
 
