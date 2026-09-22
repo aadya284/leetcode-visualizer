@@ -45,7 +45,7 @@ async function main() {
   console.log(`Found ${cfProblems.length} Codeforces problems to remove.`);
 
   if (cfProblems.length > 0) {
-    const cfIds = cfProblems.map((p) => p.id);
+    const cfIds = cfProblems.map((p: { id: string }) => p.id);
     
     // Batch delete in chunks of 500
     const CHUNK_SIZE = 500;

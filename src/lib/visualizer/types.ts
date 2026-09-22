@@ -59,6 +59,7 @@ export interface AlgorithmStep {
       nodes: { id: string; val: number | string; nextId?: string | null }[];
       pointers?: Record<string, string>; // pointerName -> nodeId (e.g. curr -> "node-1")
     }[];
+    pointers?: Record<string, string>;
     dummyHead?: { val: string | number; nextId: string };
     carry?: number;
   };

@@ -22,6 +22,11 @@ export interface SubmissionRecord {
   runtime: string;
   memory: string;
   timestamp: string;
+  code?: string;
+  runtimeMs?: number;
+  passedCases?: number;
+  totalCases?: number;
+  error?: string;
 }
 
 export interface SkillProgress {
@@ -99,30 +104,46 @@ export function getSubmissions(): SubmissionRecord[] {
 export function recordProblemSubmission(
   problemId: string,
   language: string,
-  status: "Accepted" | "Wrong Answer" | "Runtime Error",
+  status: string,
   runtime = "38 ms",
-  memory = "16.4 MB"
+  memory = "16.4 MB",
+  details?: {
+    code?: string;
+    runtimeMs?: number;
+    passedCases?: number;
+    totalCases?: number;
+    problemTitle?: string;
+    difficulty?: string;
+    error?: string;
+  }
 ): void {
   if (typeof window === "undefined") return;
 
   const targetProblem = problems.find((p) => p.id === problemId);
-  if (!targetProblem) return;
+  const title = details?.problemTitle || targetProblem?.title || `Problem #${problemId}`;
+  const diff = (details?.difficulty || targetProblem?.difficulty || "Medium") as "Easy" | "Medium" | "Hard";
+  const cat = targetProblem?.category || "Algorithm";
 
   const newSubmission: SubmissionRecord = {
     id: `sub_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
     problemId,
-    problemTitle: targetProblem.title,
-    difficulty: targetProblem.difficulty,
-    category: targetProblem.category,
-    status,
+    problemTitle: title,
+    difficulty: diff,
+    category: cat,
+    status: (status as any) || "Accepted",
     language,
     runtime,
     memory,
     timestamp: new Date().toISOString(),
+    code: details?.code,
+    runtimeMs: details?.runtimeMs,
+    passedCases: details?.passedCases,
+    totalCases: details?.totalCases,
+    error: details?.error,
   };
 
   try {
-    // 1. Append submission to history
+    // 1. Append submission to local history cache
     const existing = getSubmissions();
     const updatedSubmissions = [newSubmission, ...existing].slice(0, 50);
     localStorage.setItem(SUBMISSIONS_KEY, JSON.stringify(updatedSubmissions));
@@ -133,6 +154,28 @@ export function recordProblemSubmission(
       solved.add(problemId);
       localStorage.setItem(SOLVED_KEY, JSON.stringify(Array.from(solved)));
     }
+
+    // 3. Persist to PostgreSQL backend via API
+    fetch("/api/submissions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        problemId,
+        problemTitle: title,
+        difficulty: diff,
+        language,
+        code: details?.code || "",
+        status,
+        runtime,
+        runtimeMs: details?.runtimeMs,
+        memory,
+        passedCases: details?.passedCases,
+        totalCases: details?.totalCases,
+        error: details?.error,
+      }),
+    }).catch((err) => {
+      console.warn("Could not sync submission to backend:", err);
+    });
 
     // Trigger update event across all components
     window.dispatchEvent(new Event("leetvisual_progress_updated"));
@@ -199,6 +242,46 @@ export function useUserProgress() {
   useEffect(() => {
     setMounted(true);
     loadData();
+
+    // Fetch from backend API to ensure fresh submissions data across sessions & reloads
+    fetch("/api/submissions?limit=100")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.data && Array.isArray(json.data) && json.data.length > 0) {
+          const mapped: SubmissionRecord[] = json.data.map((item: any) => ({
+            id: item.id,
+            problemId: item.problemId,
+            problemTitle: item.problemTitle || `Problem #${item.problemId}`,
+            difficulty: item.difficulty || "Medium",
+            category: "Algorithm",
+            status: item.status,
+            language: item.language,
+            runtime: item.runtime || `${item.runtimeMs || 35} ms`,
+            memory: item.memory || "16.2 MB",
+            timestamp: item.createdAt || new Date().toISOString(),
+            code: item.code,
+            runtimeMs: item.runtimeMs,
+            passedCases: item.passedCases,
+            totalCases: item.totalCases,
+            error: item.error,
+          }));
+          setSubmissions(mapped);
+
+          // Sync solved problems to localStorage
+          const solvedFromBackend = mapped
+            .filter((s) => s.status === "Accepted")
+            .map((s) => s.problemId);
+          if (solvedFromBackend.length > 0) {
+            const currentSolved = getSolvedProblemIds();
+            const combinedSolved = Array.from(
+              new Set([...currentSolved, ...solvedFromBackend])
+            );
+            setSolvedIds(combinedSolved);
+            localStorage.setItem(SOLVED_KEY, JSON.stringify(combinedSolved));
+          }
+        }
+      })
+      .catch(() => {});
 
     const handleUpdate = () => loadData();
     window.addEventListener("leetvisual_progress_updated", handleUpdate);
@@ -287,6 +370,7 @@ export function useUserProgress() {
     profile,
     updateProfile: saveStoredProfile,
     solvedIds,
+    solvedProblems: solvedIds,
     isProblemSolved: (id: string) => solvedIds.includes(id),
     submissions,
     recordSubmission: recordProblemSubmission,

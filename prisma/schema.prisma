@@ -67,3 +67,25 @@ model Visualization {
   @@index([problemId])
   @@index([type])
 }
+
+model Submission {
+  id              String   @id @default(uuid())
+  problemId       String
+  problemTitle    String?
+  difficulty      String?
+  language        String
+  code            String   @db.Text
+  status          String   // "Accepted", "Wrong Answer", "Runtime Error", "Time Limit Exceeded"
+  runtime         String?
+  runtimeMs       Int?
+  memory          String?
+  passedCases     Int?
+  totalCases      Int?
+  error           String?  @db.Text
+  createdAt       DateTime @default(now())
+
+  @@index([problemId])
+  @@index([status])
+  @@index([createdAt])
+}
+
